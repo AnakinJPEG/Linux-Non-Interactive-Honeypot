@@ -1,0 +1,36 @@
+In order for us to "make order of the chaos" that is tcpdump stdout - we must integrate several common flags,
+filters and operators. This guide will cover the most important keywords for our honeypot,
+as well as several dedicated examples.
+
+## Must-Have Flags ##
+
+-q = Quiet
+-n = Skip dns resolution (means you get the direct IP)
+-tttt = Set timestamps 
+-v = Verbose output [avoid if you don't want to flood your logs]
+-i <int> = interface
+-r <file> = Read packets from a pcap file
+
+## Recommended Filters ##
+
+ip = IPv4 ONLY
+not port <your_ssh_port> — Obviously you want to exclude yourself from the captured traffic...
+not arp — remove address resolution from routers
+src & dst — trusted hosts / nets to or from whom you create traffic, it comes in handy to filter them out
+tcp / udp / icmp — protocol
+
+## Examples ##
+
+- Write and read output to a file:
+sudo tcpdump -tttt -l -q -n not port <ssh_port> and not arp and not <trusted_host> and ip > example_one.txt
+sudo tcpdump -r example_one.txt
+(If that won't open as hooman user - try "$ sudo -su tcpdump" and open it from there!)
+
+- Filter internal routers ipv6 traffic
+sudo tcpdump -tttt -l -q -n not port <ssh_port> and not net fe80::/16
+
+- Filter directionally
+sudo tcpdump -tttt -l -q -v not port <ssh_port> and not dst <trusted_dst> and not src <trusted_src> and ip
+
+- To monitor what a scanner is hitting, combine with grep:
+sudo tcpdump -i eth0 -nn -A 'host 45.33.14.197' | grep -iE 'GET|POST|Host:'
