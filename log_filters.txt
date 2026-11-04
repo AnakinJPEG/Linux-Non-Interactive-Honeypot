@@ -1,3 +1,5 @@
+!!! This text documents contains filters that may be performed over tcpdump.log files
+
 ## Foundational Filter ##
  
 $ awk ' { gsub(",", "", $7);
@@ -16,11 +18,12 @@ Expected Output:
 
 (i) This filter focuses on formatting the text so its easier to manage afterward
 
-
-## Play around with fields ##
+----------------------------------------------------------
+ 
+## Output Field Control ##
 
 POST-FILTER FIELDS GUIDE:        _$0=ALL_
-$1=date,   $2=time,   $3="IP",      $4=src,   $5=">", $6=dst, $7=L4Proto, $8=length
+$1=date,   $2=time,   $3="IP",    $4=src,     $5=">",   $6=dst,  $7=proto, $8=length
 2026-11-04 22:06:58.95408 IP  62.73.70.173.443    >     trap         UDP       1250
 
 Example #1: Include only src, proto, and length
@@ -40,7 +43,8 @@ Example #2: Ignore packets sent by YOUR machines
 
 $ awk '$4 !~ "<your-ip>"' filtered.txt
 
-Example #3: Ignore packets based on L4 Protocol
+
+Example #3: Ignore UDP & ICMP
 
 $ awk '$7 != "UDP" && $7 != "ICMP"' filtered.txt
 
