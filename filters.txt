@@ -1,0 +1,49 @@
+## Foundational Filter ##
+ 
+$ awk ' { gsub(",", "", $7);
+    gsub(":", "", $6); 
+    $7 = toupper($7);    
+    $8 = "";
+    print; 
+}' honeypot.log [OPTIONAL > filtered.txt]
+
+Expected Output:
+
+2026-11-04 22:06:58.954033 IP 62.73.70.173.443 > trap UDP  1250
+2026-11-04 22:06:58.954035 IP 62.73.70.173.443 > trap UDP  1250
+2026-11-04 22:06:58.954036 IP 62.73.70.173.443 > trap UDP  1250
+2026-11-04 22:06:58.954089 IP 62.73.70.173.443 > trap UDP  1250
+
+(i) This filter focuses on formatting the text so its easier to manage afterward
+
+
+## Play around with fields ##
+
+POST-FILTER FIELDS GUIDE:        _$0=ALL_
+$1=date,   $2=time,   $3="IP",      $4=src,   $5=">", $6=dst, $7=L4Proto, $8=length
+2026-11-04 22:06:58.95408 IP  62.73.70.173.443    >     trap         UDP       1250
+
+Example #1: Include only src, proto, and length
+
+$ awk '{print $4, $7, $8}' filtered.txt
+
+Expected Output:
+
+62.73.70.173.443 UDP 1250
+10.209.213.9.57375 UDP 32
+62.73.70.173.443 UDP 1250
+62.73.70.173.443 UDP 1250
+
+(i) In order to differentiate -- Malicious traffic lines will likely contain random ports
+
+Example #2: Ignore packets sent by YOUR machines
+
+$ awk '$4 !~ "<your-ip>"' filtered.txt
+
+Example #3: Ignore packets based on L4 Protocol
+
+$ awk '$7 != "UDP" && $7 != "ICMP"' filtered.txt
+
+
+
+
